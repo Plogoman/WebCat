@@ -36,7 +36,7 @@ uv sync
 
 ```bash
 # install from local directory
-cd webcat
+cd WebCat
 uv tool install .
 ```
 
