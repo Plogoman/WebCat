@@ -33,13 +33,21 @@ class CustomHTTPRequestHandler(http.server.SimpleHTTPRequestHandler):
             typer.echo(f"[POST] {self.path} from {self.client_address[0]}")
             typer.echo(f"    Data Length: {content_length} bytes")
 
+            typer.secho("-----Post Data-----", fg=typer.colors.BRIGHT_GREEN)
+            try:
+                decoded_data = post_data.decode('utf-8')
+                typer.echo(decoded_data)
+            except UnicodeDecodeError:
+                typer.secho("   [Binary Data - Hex Dump]", fg=typer.colors.BRIGHT_YELLOW)
+                typer.echo(post_data.hex())
+            typer.secho("-----End Post Data-----", fg=typer.colors.BRIGHT_GREEN)
+
             self.send_response(200)
             self.send_header('Content-type', 'text/plain')
             self.end_headers()
             self.wfile.write(b"Data Received\n")
         except (BrokenPipeError, ConnectionResetError):
             typer.echo(f"[INFO] Client disconnected during POST: {self.client_address[0]}")
-
 
 @app.command()
 def server(
@@ -55,10 +63,10 @@ def server(
     os.chdir(directory)
     directory_path = dir_path.resolve()
 
-    typer.secho("Starting WebCat HTTP Server...", fg=typer.colors.BRIGHT_GREEN, bold=True)
-    typer.echo(f"   Serving: {directory_path}")
-    typer.secho(f"   Listening on: http://{bind}:{port}", fg=typer.colors.CYAN)
-    typer.echo(f"   Press Ctrl+C to stop\n")
+    typer.secho("Starting WebCat HTTP Server...", fg=typer.colors.GREEN, bold=True)
+    typer.echo(f"    Serving: {directory_path}")
+    typer.secho(f"    Listening on: http://{bind}:{port}", fg=typer.colors.CYAN)
+    typer.echo(f"  Press Ctrl+C to stop\n")
 
     try:
         with socketserver.TCPServer((bind, port), CustomHTTPRequestHandler) as httpd:
